@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Seattle 911 Call Analysis</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h1,
+            h2 {
+                border-bottom: 2px solid #ccc;
+                padding-bottom: 5px;
+            }
+            section {
+                margin-bottom: 50px;
+            }
+            iframe {
+                width: 100%;
+                height: 600px;
+                border: 1px solid #ddd;
+                margin-top: 10px;
+            }
+            img {
+                max-width: 100%;
+                display: block;
+                margin-top: 10px;
+                border: 1px solid #ccc;
+            }
+            .note {
+                font-size: 0.9em;
+                color: #555;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Seattle 911 Call Analysis Report</h1>
+
+        <section>
+            <h2>Objective</h2>
+            <p>
+                This project aims to explore, cluster, and analyze Seattle 911
+                call data across neighborhoods and times of day. The goal is to
+                identify spatial and temporal patterns in emergency response
+                activity that can support public safety decision-making.
+            </p>
+        </section>
+
+        <section>
+            <h2>Data Sources & Preprocessing</h2>
+            <p>
+                We merged 911 call records with NOAA weather data and geospatial
+                boundary data for Seattle neighborhoods. The dataset was
+                cleaned, parsed for timestamps, and enhanced with engineered
+                features like call type frequency and time-of-day bins.
+            </p>
+            <ul>
+                <li>
+                    <strong>Primary dataset:</strong> Seattle 911 calls with 50+
+                    fields
+                </li>
+                <li>
+                    <strong>Weather:</strong> NOAA daily summaries (temperature,
+                    precipitation, wind)
+                </li>
+                <li>
+                    <strong>Spatial boundaries:</strong> Seattle Dispatch
+                    Neighborhoods GeoJSON
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Spatial Clustering Analysis</h2>
+
+            <h3>1. K-Means Clustering</h3>
+            <p>
+                K-means was applied to a feature matrix capturing call counts
+                and priority levels per neighborhood. The silhouette score was
+                used to determine the optimal number of clusters.
+            </p>
+            <img
+                src="output/kmeans_silhouette_plot.png"
+                alt="KMeans Silhouette"
+            />
+
+            <img
+                src="output/kmeans_cluster_distribution.png"
+                alt="KMeans Distribution"
+            />
+            <iframe src="output/kmeans_2_cluster_map.html"></iframe>
+            <div class="note">
+                CSV summary: <code>output/kmeans_cluster_summary.csv</code>
+            </div>
+
+            <h3>2. PCA + K-Means</h3>
+            <p>
+                Dimensionality reduction using PCA helped identify structure in
+                the feature space. K-means clustering followed, producing
+                clearer groupings.
+            </p>
+            <iframe src="output/pca_cluster_map.html"></iframe>
+
+            <h3>3. HDBSCAN Clustering</h3>
+            <p>
+                HDBSCAN detected dense clusters and identified outliers (cluster
+                -1). This approach was more flexible than K-means and worked
+                well for uneven neighborhood distributions.
+            </p>
+            <iframe src="output/hdbscan_cluster_map.html"></iframe>
+
+            <h3>4. Gaussian Mixture Model (BIC)</h3>
+            <p>
+                We applied BIC scoring to automatically determine the best
+                number of Gaussian clusters. The resulting clusters provided
+                probabilistic interpretations.
+            </p>
+            <img src="output/gmm_bic_plot.png" alt="GMM BIC Plot" />
+            <iframe src="output/gmm_bic_cluster_map.html"></iframe>
+            <div class="note">
+                CSV summary: <code>output/gmm_bic_cluster_summary.csv</code>
+            </div>
+        </section>
+
+        <section>
+            <h2>Temporal Analysis</h2>
+
+            <h3>Time-of-Day Binning</h3>
+            <p>
+                Calls were categorized into six bins: Late Night (00–04), Early
+                Morning (04–06), Morning (06–12), Afternoon (12–17), Evening
+                (17–21), Night (21–00).
+            </p>
+            <img
+                src="output/temporal_analysis/call_volume_by_time.png"
+                alt="Call Volume by Time Bin"
+            />
+            <img
+                src="output/temporal_analysis/call_type_by_time.png"
+                alt="Top Call Types by Time Bin"
+            />
+
+            <h3>Time-Aware KMeans Clustering</h3>
+            <p>
+                KMeans clustering was performed separately for each time bin.
+                Each map shows clusters of neighborhoods based on call volume
+                and average priority during that bin.
+            </p>
+            <iframe src="output/time_bin_clustering/time_bin_map.html"></iframe>
+            <img
+                src="output/time_bin_clustering/cluster_distribution_summary.png"
+                alt="Cluster Distribution Summary"
+            />
+            <div class="note">
+                Summary:
+                <code
+                    >output/time_bin_clustering/time_bin_cluster_profile.csv</code
+                >
+            </div>
+
+            <h3>Cluster Transitions</h3>
+            <p>
+                The table below shows how neighborhoods transition across
+                clusters between time bins.
+            </p>
+            <div class="note">
+                See CSV:
+                <code
+                    >output/time_bin_clustering/time_bin_cluster_transitions.csv</code
+                >
+            </div>
+        </section>
+    </body>
+</html>

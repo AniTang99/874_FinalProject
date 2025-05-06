@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seattle 911 Call Analysis</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      background-color: #f9f9f9;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      border-bottom: 2px solid #0077cc;
+      padding-bottom: 6px;
+      color: #004466;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    iframe, img {
+      width: 100%;
+      border: none;
+      margin-top: 10px;
+    }
+    .subsection {
+      margin-top: 20px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Seattle 911 Call Analysis</h1>
+
+  <div class="section">
+    <h2>Introduction</h2>
+    <p>Our primary goal was to analyze real-world emergency response data by studying over a million 911 call records from Seattle PD. We integrated spatial (neighborhood), temporal (weather, time), and behavioral features to uncover trends, build predictive models, and detect anomalies.</p>
+  </div>
+
+  <div class="section">
+    <h2>Preprocessing</h2>
+    <div class="subsection">
+      <h3>Data Sources</h3>
+      <ul>
+        <li>Seattle PD 911 Calls (April 2023–April 2025)</li>
+        <li>Seattle Historical Weather (via Meteostat)</li>
+        <li>SPD Dispatch Neighborhoods GeoJSON</li>
+      </ul>
+    </div>
+    <div class="subsection">
+      <h3>Processing Steps</h3>
+      <ul>
+        <li>Cleaned rows with invalid or missing time/location data</li>
+        <li>Binned timestamps into 6 time-of-day categories</li>
+        <li>Merged weather by date</li>
+        <li>Standardized neighborhood names and linked to GeoJSON</li>
+      </ul>
+    </div>
+    <div class="subsection">
+    <h3>Dataset Columns</h3>
+    <div style="overflow-x:auto;">
+      <table border="1" cellpadding="6" cellspacing="0">
+        <thead style="background:#eee;">
+          <tr>
+            <th>Column Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>CAD Event Number</td><td>Unique ID for each 911 event</td></tr>
+          <tr><td>CAD Event Clearance Description</td><td>Final resolution label for the call</td></tr>
+          <tr><td>Call Type</td><td>Category of call (e.g., emergency or non-emergency)</td></tr>
+          <tr><td>Priority</td><td>Response urgency level (lower means more urgent)</td></tr>
+          <tr><td>Initial Call Type</td><td>Call type as initially reported</td></tr>
+          <tr><td>Final Call Type</td><td>Call type after officer classification</td></tr>
+          <tr><td>CAD Event Original Time Queued</td><td>Timestamp when the call was received</td></tr>
+          <tr><td>CAD Event Arrived Time</td><td>Time when responders arrived</td></tr>
+          <tr><td>Dispatch Precinct / Sector / Beat</td><td>Geographical subdivisions for dispatching</td></tr>
+          <tr><td>Dispatch Longitude / Latitude</td><td>Location of the incident</td></tr>
+          <tr><td>Dispatch Reporting Area</td><td>Internal reporting code</td></tr>
+          <tr><td>CAD Event Response Category</td><td>Broad type of response</td></tr>
+          <tr><td>Call Sign Dispatch/Scene/In-Service Times</td><td>Timestamps of response units' movements</td></tr>
+          <tr><td>Call Sign Total Service Time (s)</td><td>Total time units spent on scene (varies by responder type)</td></tr>
+          <tr><td>Call Sign Dispatch Delay / Response Time</td><td>Delay between dispatch and action</td></tr>
+          <tr><td>Call Type Indicator</td><td>Extra classification label</td></tr>
+          <tr><td>Dispatch Neighborhood</td><td>Named area where the call occurred</td></tr>
+          <tr><td>Call Type Received Classification</td><td>Category used by call takers</td></tr>
+          <tr><td>date</td><td>Date extracted from call timestamp</td></tr>
+          <tr><td>tavg, tmin, tmax</td><td>Average, min, and max temperature for that day</td></tr>
+          <tr><td>prcp, snow</td><td>Daily precipitation and snowfall</td></tr>
+          <tr><td>wdir, wspd, wpgt</td><td>Wind direction, speed, and gusts</td></tr>
+          <tr><td>pres</td><td>Atmospheric pressure</td></tr>
+          <tr><td>tsun</td><td>Sunshine duration</td></tr>
+          <tr><td>Queued Datetime</td><td>Parsed datetime object for call timestamp</td></tr>
+          <tr><td>Hour</td><td>Hour of day when call was received</td></tr>
+          <tr><td>Time of Day Bin</td><td>Binned hour into 6 categories (e.g., Morning, Night)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Spatiotemporal Analysis</h2>
+    <div class="subsection">
+      <h3>Initial Call Volume Map</h3>
+      <p>This map shows raw 911 call volume across Seattle neighborhoods before clustering.</p>
+      <iframe src="assets/objective2/interactive_seattle_911_fullmap.html" height="500"></iframe>
+    </div>
+
+    <div class="subsection">
+      <h3>K-Means Clustering</h3>
+      <p>Two clusters were identified using silhouette score. They reveal a distinction between high-activity and low-activity areas.</p>
+      <iframe src="assets/objective2/kmeans_2_cluster_map.html" height="500"></iframe>
+    </div>
+
+    <div class="subsection">
+      <h3>PCA + Agglomerative Clustering</h3>
+      <p>PCA reduced dimensionality of call-type distributions; agglomerative clustering found 3 behavioral clusters.</p>
+      <iframe src="assets/objective2/pca_cluster_vs_priority_overlay_map.html" height="500"></iframe>
+    </div>
+
+    <div class="subsection">
+      <h3>HDBSCAN</h3>
+      <p>Automatically determined 4 clusters and flagged outliers, showing how call behavior varies across core and residential zones.</p>
+      <iframe src="assets/objective2/hdbscan_cluster_map.html" height="500"></iframe>
+    </div>
+
+    <div class="subsection">
+      <h3>GMM with BIC</h3>
+      <p>GMM with 5 components (selected using BIC) captured nuanced behavior. Some clusters showed extreme officer-initiated activity.</p>
+      <img src="assets/objective2/gmm_bic_plot.png" alt="GMM BIC Plot"/>
+      <iframe src="assets/objective2/interactive_gmm_cluster_map.html" height="500"></iframe>
+    </div>
+
+    <div class="subsection">
+      <h3>Spatiotemporal KMeans</h3>
+      <p>We applied KMeans clustering independently for each time-of-day bin to analyze how spatial structure varies over time.</p>
+      <img src="assets/objective2/call_volume_by_time.png" alt="Call Volume by Time">
+      <img src="assets/objective2/call_type_by_time.png" alt="Call Type by Time">
+      <img src="assets/objective2/cluster_distribution_by_timebin.png" alt="Cluster Distribution by Time">
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Association Analysis</h2>
+    <p>We used the Apriori algorithm to identify strong associations between weather, time, and call types. Rules with high confidence revealed patterns like community-generated calls strongly correlating with specific response types.</p>
+    <p>The following table highlights the top 10 association rules with high confidence identified from the dataset using rule mining techniques:</p>
+    <div style="overflow-x: auto;">
+        <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead style="background-color: #eee;">
+            <tr>
+            <th>#</th>
+            <th>Rule</th>
+            <th>Confidence</th>
+            <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Rule 43: CAD Event Response Category=SPD, Call Type=911 → Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH</td><td>6.00</td><td>3.54</td></tr>
+            <tr><td>2</td><td>Rule 40: Call Type=911 → CAD Event Response Category=SPD, Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH</td><td>5.98</td><td>3.54</td></tr>
+            <tr><td>3</td><td>Rule 45: Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED → CAD Event Response Category=SPD, Call Type Indicator=DISPATCH</td><td>5.98</td><td>3.54</td></tr>
+            <tr><td>4</td><td>Rule 46: Call Type=911, Call Type Indicator=DISPATCH → CAD Event Response Category=SPD, Call Type Received Classification=COMMUNITY_GENERATED</td><td>5.98</td><td>3.54</td></tr>
+            <tr><td>5</td><td>Rule 38: Call Type Received Classification=COMMUNITY_GENERATED → CAD Event Response Category=SPD, Call Type=911, Call Type Indicator=DISPATCH</td><td>4.47</td><td>3.54</td></tr>
+            <tr><td>6</td><td>Rule 39: Call Type Indicator=DISPATCH → CAD Event Response Category=SPD, Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED</td><td>4.47</td><td>3.54</td></tr>
+            <tr><td>7</td><td>Rule 44: Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH → CAD Event Response Category=SPD, Call Type=911</td><td>4.47</td><td>3.54</td></tr>
+            <tr><td>8</td><td>Rule 41: CAD Event Response Category=SPD, Call Type Received Classification=COMMUNITY_GENERATED → Call Type=911, Call Type Indicator=DISPATCH</td><td>4.49</td><td>3.54</td></tr>
+            <tr><td>9</td><td>Rule 42: CAD Event Response Category=SPD, Call Type=911 → Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH</td><td>4.49</td><td>3.54</td></tr>
+            <tr><td>10</td><td>Rule 37: CAD Event Response Category=SPD → Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH</td><td>3.56</td><td>3.54</td></tr>
+        </tbody>
+        </table>
+    </div>
+    <p>This table presents another perspective on the top association rules, showing low confidence and support values:</p>
+    <div style="overflow-x: auto;">
+        <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead style="background-color: #eee;">
+            <tr>
+            <th>#</th>
+            <th>Rule</th>
+            <th>Confidence</th>
+            <th>Support</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Rule 3: Call Type Indicator=DISPATCH → Call Type=911</td><td>0.75</td><td>0.59</td></tr>
+            <tr><td>2</td><td>Rule 5: Call Type Received Classification=COMMUNITY_GENERATED → Call Type=911</td><td>0.75</td><td>0.59</td></tr>
+            <tr><td>3</td><td>Rule 6: CAD Event Response Category=SPD → Call Type Indicator=DISPATCH</td><td>0.79</td><td>0.79</td></tr>
+            <tr><td>4</td><td>Rule 8: CAD Event Response Category=SPD → Call Type Received Classification=COMMUNITY_GENERATED</td><td>0.79</td><td>0.79</td></tr>
+            <tr><td>5</td><td>Rule 47: CAD Event Response Category=SPD, Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH → Call Type=911</td><td>1.50</td><td>3.54</td></tr>
+            <tr><td>6</td><td>Rule 48: CAD Event Response Category=SPD, Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED → Call Type Indicator=DISPATCH</td><td>2.00</td><td>3.54</td></tr>
+            <tr><td>7</td><td>Rule 49: CAD Event Response Category=SPD, Call Type=911, Call Type Indicator=DISPATCH → Call Type Received Classification=COMMUNITY_GENERATED</td><td>2.00</td><td>3.54</td></tr>
+            <tr><td>8</td><td>Rule 50: Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED, Call Type Indicator=DISPATCH → CAD Event Response Category=SPD</td><td>1.99</td><td>3.54</td></tr>
+            <tr><td>9</td><td>Rule 15: CAD Event Response Category=SPD → Call Type=911, Call Type Indicator=DISPATCH</td><td>1.78</td><td>1.77</td></tr>
+            <tr><td>10</td><td>Rule 21: CAD Event Response Category=SPD → Call Type=911, Call Type Received Classification=COMMUNITY_GENERATED</td><td>1.78</td><td>1.77</td></tr>
+        </tbody>
+        </table>
+    </div>
+    <img src="assets/objective3/numrules_vs_minsupp.jpg" alt="Number of Rules vs Support">
+    <img src="assets/objective3/runtime_vs_minsupp.jpg" alt="Runtime vs Support">
+  </div>
+
+  <div class="section">
+    <h2>Predictive Modeling</h2>
+    <p>XGBoost was used to predict final call types based on initial call type, location, and weather. Achieved 62.10% accuracy (vs baseline of 19.47%).</p>
+    <img src="assets/objective4/IMG-20250505-WA0002.jpg" alt="XGBoost Accuracy">
+    <img src="assets/objective4/IMG-20250505-WA0003.jpg" alt="Confusion Matrix">
+    <img src="assets/objective4/IMG-20250505-WA0001.jpg" alt="Feature Importance">
+    <img src="assets/objective4/IMG-20250505-WA0004.jpg" alt="Feature Importance">
+    <img src="assets/objective4/IMG-20250505-WA0005.jpg" alt="Feature Importance">
+    <img src="assets/objective4/IMG-20250505-WA0006.jpg" alt="Feature Importance">
+    <img src="assets/objective4/IMG-20250505-WA0007.jpg" alt="Feature Importance">
+  </div>
+
+  <div class="section">
+    <h2>Anomaly Detection</h2>
+    <p>Using Z-score and Isolation Forest methods, we detected unusual spikes or drops in 911 activity across time, location, and weather conditions.</p>
+    <img src="assets/objective5/callvol_hourly.png" alt="Time-Based Anomalies">
+    <img src="assets/objective5/call_vol_by_neighborhood.png" alt="Location-Based Anomalies">
+    <img src="output/anomaly/weather_anomalies.png" alt="Weather vs Anomaly Frequency">
+  </div>
+
+  <div class="section">
+    <h2>Conclusion</h2>
+    <ul>
+      <li>Explored 1M+ 911 records with time, location, and weather features</li>
+      <li>Identified clusters based on spatial and temporal trends</li>
+      <li>Generated insights using association rules and predictive modeling</li>
+      <li>Flagged unusual patterns through anomaly detection</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Future Work</h2>
+    <ul>
+      <li>Incorporate traffic and population density data</li>
+      <li>Try sequential pattern mining on event sequences</li>
+      <li>Improve model performance with neural networks</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Works Cited</h2>
+    <ul>
+      <li><a href="https://data.seattle.gov/Public-Safety/Call-Data/33kz-ixgy/about_data" target="_blank">Seattle PD 911 Call Data</a></li>
+      <li><a href="https://catalog.data.gov/dataset/seattle-police-department-micro-community-policing-plans-web-mercator" target="_blank">SPD Neighborhood GeoJSON</a></li>
+      <li><a href="https://meteostat.net/" target="_blank">Meteostat Weather Data</a></li>
+    </ul>
+  </div>
+
+</body>
+</html>
