@@ -21,9 +21,13 @@
       margin-bottom: 40px;
     }
     iframe, img {
-      width: 100%;
-      border: none;
-      margin-top: 10px;
+        max-width: 900px;
+        width: 100%;
+        height: auto;
+        border: none;
+        display: block;
+        margin: 20px auto 0 auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .subsection {
       margin-top: 20px;
@@ -32,6 +36,15 @@
       background: #eee;
       padding: 2px 6px;
       border-radius: 4px;
+    }
+    .table-container {
+        max-width: 900px;
+        margin: 20px auto;
+        overflow-x: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
     }
   </style>
 </head>
@@ -65,7 +78,7 @@
     </div>
     <div class="subsection">
     <h3>Dataset Columns</h3>
-    <div style="overflow-x:auto;">
+    <div class="table-container">
       <table border="1" cellpadding="6" cellspacing="0">
         <thead style="background:#eee;">
           <tr>
@@ -152,7 +165,7 @@
     <h2>Association Analysis</h2>
     <p>We used the Apriori algorithm to identify strong associations between weather, time, and call types. Rules with high confidence revealed patterns like community-generated calls strongly correlating with specific response types.</p>
     <p>The following table highlights the top 10 association rules with high confidence identified from the dataset using rule mining techniques:</p>
-    <div style="overflow-x: auto;">
+    <div class="table-container">
         <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%;">
         <thead style="background-color: #eee;">
             <tr>
@@ -177,7 +190,7 @@
         </table>
     </div>
     <p>This table presents another perspective on the top association rules, showing low confidence and support values:</p>
-    <div style="overflow-x: auto;">
+    <div class="table-container">
         <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%;">
         <thead style="background-color: #eee;">
             <tr>
