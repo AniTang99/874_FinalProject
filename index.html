@@ -29,6 +29,10 @@
         margin: 20px auto 0 auto;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+    iframe {
+        height: 600px;
+        max-height: 900px;
+    }
     .subsection {
       margin-top: 20px;
     }
@@ -231,12 +235,34 @@
   </div>
 
   <div class="section">
-    <h2>Anomaly Detection</h2>
-    <p>Using Z-score and Isolation Forest methods, we detected unusual spikes or drops in 911 activity across time, location, and weather conditions.</p>
-    <img src="assets/objective5/callvol_hourly.png" alt="Time-Based Anomalies">
-    <img src="assets/objective5/call_vol_by_neighborhood.png" alt="Location-Based Anomalies">
-    <img src="output/anomaly/weather_anomalies.png" alt="Weather vs Anomaly Frequency">
+  <h2>Anomaly Detection</h2>
+  <p>We used Z-score and Isolation Forest algorithms to detect anomalous spikes or drops in call volumes and correlate these with environmental and temporal factors.</p>
+
+  <div class="subsection">
+    <h3>Temporal and Spatial Anomalies</h3>
+    <p>We flagged temporal and neighborhood-level anomalies in call volumes. Highlighted bars and dots indicate outlier values.</p>
+    <img src="assets/objective5/callvol_hourly.png" alt="Hourly Call Volume with Anomalies">
+    <img src="assets/objective5/call_vol_anomalies_highlighted.jpg" alt="911 Call Volume by Hour (Anomalies Highlighted)">
+    <img src="assets/objective5/call_vol_by_neighborhood.png" alt="Call Volume by Neighborhood (Anomalies)">
+    <img src="assets/objective5/call_vol_anomalies_highlighted_sorted.jpg" alt="911 Call Volume by Hour (Anomalies Highlighted) sorted">
   </div>
+
+  <div class="subsection">
+    <h3>Weather Features vs Anomaly Count</h3>
+    <p>We visualized the number of anomalies that occurred under varying levels of precipitation, temperature, and wind speed.</p>
+    <img src="assets/objective5/anomaly_avgtemp.png" alt="Anomaly Count vs Avg Temperature">
+    <img src="assets/objective5/anomaly_windspeed.png" alt="Anomaly Count vs Wind Speed">
+    <img src="assets/objective5/anomaly_precip.png" alt="Anomaly Count vs Precipitation">
+  </div>
+
+  <div class="subsection">
+    <h3>Weather Feature Distributions (Normal vs Anomalies)</h3>
+    <p>These plots show the distribution of precipitation, temperature, and wind speed comparing normal days and days flagged as anomalous.</p>
+    <img src="assets/objective5/temp_normalvsanom.png" alt="Temperature Normal vs Anomalies">
+    <img src="assets/objective5/windspeed_normalvsanom.png" alt="Wind Speed Normal vs Anomalies">
+    <img src="assets/objective5/precip_normalvsanom.png" alt="Precipitation Normal vs Anomalies">
+  </div>
+</div>
 
   <div class="section">
     <h2>Conclusion</h2>
